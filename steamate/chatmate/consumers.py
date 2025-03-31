@@ -27,7 +27,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         library_games = await database_sync_to_async(lambda: self.user.library_games.all())()
         self.appid = await database_sync_to_async(lambda: [games.game.appid for games in library_games])()
         self.game = await database_sync_to_async(lambda: [games.game.title + ' (' + '플레이 시간: ' + str(games.playtime) + '분)' + ' ('+ 'appid: ' + str(games.game.appid) + ')' for games in library_games.order_by('-playtime')])()
-        self.preferred_games = await database_sync_to_async(lambda: [preferred_games.game.title + ' ('+ 'appid: ' + str(preferred_games.game.appid) + ')' for preferred_games in self.user.preferred_games.all()])()
+        self.preferred_games = await database_sync_to_async(lambda: [preferred_games.game.title for preferred_games in self.user.preferred_games.all()])()
         
         # 권한 확인 - 세션 소유자만 접근 가능
         if self.user.is_anonymous or session_user.id != self.user.id:
@@ -76,25 +76,27 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 if serializer.is_valid(raise_exception=True):
                     # 스트리밍 응답 처리
                     aggregated_response = ""
-                    async for chunk in get_chatbot_message(user_message, self.session_id, self.tags, self.game, self.appid, self.preferred_games):
+                    async for chunk in get_chatbot_message(user_message, self.session_id, self.tags, self.appid, self.preferred_games):
                         aggregated_response += chunk
                         # 각 청크마다 스트리밍 응답 전송
                         await self.send(text_data=json.dumps({
                             'response': aggregated_response,
                             'is_streaming': True
                         }))
-                    
-                    # 최종 응답 전송 및 DB 저장
-                    await self.send(text_data=json.dumps({
-                        'response': aggregated_response,
-                        'is_streaming': False
-                    }))
-                    
                     # DB에 메시지 저장
                     await database_sync_to_async(serializer.save)(
                         session_id=self.session,
                         chatbot_message=aggregated_response
-                    )
+                    )                    
+                    
+                    # 최종 응답 전송 및 DB 저장
+                    await self.send(text_data=json.dumps({
+                        'response': aggregated_response,
+                        'is_streaming': False,
+                        'message_id': serializer.data['id']
+                    }))
+                    
+                    
                 
             except Exception as e:
                 # 오류 처리
@@ -128,24 +130,25 @@ class ChatConsumer(AsyncWebsocketConsumer):
             if serializer.is_valid(raise_exception=True):
                 # 새로운 챗봇 응답 생성 및 스트리밍
                 aggregated_response = ""
-                async for chunk in get_chatbot_message(new_message, self.session_id, self.tags, self.game, self.appid, self.preferred_games):
+                async for chunk in get_chatbot_message(new_message, self.session_id, self.tags, self.appid, self.preferred_games):
                     aggregated_response += chunk
                     await self.send(text_data=json.dumps({
                         'response': aggregated_response,
                         'is_streaming': True
                     }))
                 
-                # 최종 응답 전송
-                await self.send(text_data=json.dumps({
-                    'response': aggregated_response,
-                    'is_streaming': False
-                }))
-                
                 # DB 업데이트
-                await database_sync_to_async(serializer.save)(
+                updated_message = await database_sync_to_async(serializer.save)(
                     session_id=self.session,
                     chatbot_message=aggregated_response
                 )
+                
+                # 최종 응답 전송 (메시지 ID 포함)
+                await self.send(text_data=json.dumps({
+                    'response': aggregated_response,
+                    'is_streaming': False,
+                    'message_id': updated_message.id
+                }))
             
         except Exception as e:
             await self.send(text_data=json.dumps({

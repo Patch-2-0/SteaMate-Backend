@@ -23,7 +23,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # 챗봇 모델 설정
-chat = ChatOpenAI(model="gpt-4o-mini", api_key=OPENAI_API_KEY, temperature=0, streaming=True)
+chat = ChatOpenAI(model="gpt-4o-mini", api_key=OPENAI_API_KEY, temperature=0.2, streaming=True)
 choice_chat = ChatOpenAI(
     model="gpt-4o-mini",
     api_key=OPENAI_API_KEY,
@@ -97,7 +97,7 @@ agent_with_history = RunnableWithMessageHistory(
 )
 
 
-async def get_chatbot_message(user_input, session_id, tag, game, appid, preferred_games):
+async def get_chatbot_message(user_input, session_id, tag, appid, preferred_games):
     # 1. Get chat history
     chat_history = get_session_history(session_id)
     
@@ -125,7 +125,7 @@ async def get_chatbot_message(user_input, session_id, tag, game, appid, preferre
             yield chunk
     else:
         # 5. 스트리밍 응답 생성 및 yield# 2. Generate pseudo document
-        pseudo_doc = generate_pseudo_document(user_input, chat, str_outputparser, tag, game, preferred_games, chat_history)
+        pseudo_doc = generate_pseudo_document(user_input, chat, str_outputparser, tag, preferred_games, chat_history)
         # 3. Decompose the generated pseudo document into sub-queries
         sub_queries = decompose_query(pseudo_doc, chat, str_outputparser)
         # 4. Perform search for each sub-query
@@ -139,7 +139,7 @@ async def get_chatbot_message(user_input, session_id, tag, game, appid, preferre
         for sub_query in sub_queries:
             sub_results = retriever.invoke(sub_query)
             all_contexts.extend(sub_results)
-            
+        
         all_contexts.extend(retriever.invoke(user_input))
 
         # 4. 검색 결과 통합 및 중복 제거 (page_content 한 번만 접근)
@@ -151,7 +151,6 @@ async def get_chatbot_message(user_input, session_id, tag, game, appid, preferre
                 "input": user_input,
                 "context": context,
                 "tag": ", ".join(tag),
-                "game": ", ".join(game),
                 "preferred_games": ", ".join(preferred_games),
             },
             config={"configurable": {"session_id": session_id}}
