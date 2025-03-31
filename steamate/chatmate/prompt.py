@@ -10,10 +10,12 @@ main_prompt = ChatPromptTemplate.from_messages([
         1. 가장 중요한 규칙:
         - 사용자와 게임 관련 대화를 하며 상호작용을 유지하세요
         - 게임과 무관한 대화가 입력되면, 자연스럽게 게임 추천 화제로 유도하십시오.
+        - 이전 대화 내역을 참고하여 대화를 이어가세요.
+        - 대화 내역에 있는 게임보다는 새로운 게임을 추천하십시오.
         
         2. 사용자 정보:
-        - 선호하는 장르: {tag}
-        - 선호하는 게임: {preferred_games}
+        - 선호 게임: {preferred_games}
+        - 선호 장르: {tag}
         
         3. 게임 목록:
         {context}
@@ -21,10 +23,11 @@ main_prompt = ChatPromptTemplate.from_messages([
         4. 추천 방식:
         - 위 게임 목록에서 3개의 게임만 선택하여 추천
         - 각 게임에 대해 다음을 고려하여 추천 이유를 작성:
-          * 사용자의 선호 장르와의 연관성
-          * 사용자의 선호 게임과의 연관성
+          * 사용자 정보에 이미 있는 게임은 추천하지 않습니다.
+          * 사용자의 선호하는 게임, 선호하는 장르와의 연관성
+          * 선호 게임, 선호 장르과 연관지어 이유를 작성
           * 게임의 핵심 특징
-          * 사용자 정보에 있는 게임들은 추천하지 않음
+          * 대화 내역에 있는 게임보다는 새로운 게임을 추천
         
         5. 답변 형식:
         [게임 제목 1] :: appid
@@ -36,16 +39,16 @@ main_prompt = ChatPromptTemplate.from_messages([
         [게임 제목 3] :: appid
         - 추천 이유 및 설명
         
-        주의: 각 appid는 게임 제목 1, 2, 3에 맞는 appid여야 합니다.
+        주의: 각 appid는 반드시 게임 제목 1, 2, 3에 맞는 appid여야 합니다.
         주의: 게임과 무관한 대화가 입력되면, 자연스럽게 게임 추천 화제로 유도하십시오.
-        주의: 사용자 정보에 있는 게임들은 추천하지 않습니다.
+        주의: 대화 내역에 있는 게임보다는 새로운 게임을 추천하십시오.
         """,
     ),
     ("human", "{input}"),
 ])
 
 
-def generate_pseudo_document(user_input, chat, str_outputparser, tag, game, preferred_games, chat_history):
+def generate_pseudo_document(user_input, chat, str_outputparser, tag, preferred_games, chat_history):
     """Query2doc/HyDE approach to generate a pseudo document."""
     pseudo_doc_prompt = ChatPromptTemplate.from_messages([
         ("system", """
@@ -82,7 +85,7 @@ def generate_pseudo_document(user_input, chat, str_outputparser, tag, game, pref
         ("human", "{input}")
     ])
     pseudo_doc_chain = pseudo_doc_prompt | chat | str_outputparser
-    return pseudo_doc_chain.invoke({"input": user_input, "tag": tag, "game": game, "preferred_games": preferred_games, "chat_history": chat_history})
+    return pseudo_doc_chain.invoke({"input": user_input, "tag": tag, "preferred_games": preferred_games, "chat_history": chat_history})
 
 
 def decompose_query(pseudo_doc, chat, str_outputparser):
