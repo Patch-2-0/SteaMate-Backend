@@ -31,7 +31,7 @@
 
 ## 1. 프로젝트 개요
 ### 아이디어 및 배경
-> Steam에는 222,333개의 게임이 있습니다. 하지만 그중에서 나에게 딱 맞는 게임을 찾는 건 쉽지 않죠. 수많은 게임을 스크롤하며 고민해본 적 있으신가요? 이런 고민을 해봤다면 SteaMate를 사용해보세요!
+> Steam에는 약 22만 개의 게임이 있습니다. 하지만 그중에서 나에게 딱 맞는 게임을 찾는 건 쉽지 않죠. 수많은 게임을 스크롤하며 고민해본 적 있으신가요? 이런 고민을 해봤다면 SteaMate를 사용해보세요!
 
 ### SteaMate 소개
 - **SteaMate**는 사용자의 선호 장르, 플레이 스타일, 과거 플레이 데이터를 분석하고, 게임 리뷰 및 메타 데이터를 활용하여 개인 맞춤형 게임 큐레이션을 제공합니다. 이를 통해 사용자가 더 쉽고 빠르게 새로운 게임을 발견할 수 있도록 돕습니다.
@@ -51,60 +51,11 @@
 
 ### 팀원 구성
 
-<table style="border-collapse: collapse; width: 100%; text-align: center;">
-  <thead>
-    <tr>
-      <th style="padding: 10px;">항목</th>
-      <th style="padding: 10px;">이현지</th>
-      <th style="padding: 10px;">이수관</th>
-      <th style="padding: 10px;">박종관</th>
-      <th style="padding: 10px;">노호성</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th style="padding: 10px;">GitHub</th>
-      <td style="padding: 10px;">
-        <img src="https://github.com/user-attachments/assets/9e4487ed-8030-4125-a52b-7d274ec7a417" width="150" height="150"><br>
-        <a href="https://github.com/hzi09">@hzi09</a>
-      </td>
-      <td style="padding: 10px;">
-        <img src="https://github.com/user-attachments/assets/4e18241e-2924-447d-8745-7a05556c0fee" width="150" height="150"><br>
-        <a href="https://github.com/sugwanlee">@Orange_00</a>
-      </td>
-      <td style="padding: 10px;">
-        <img src="https://github.com/user-attachments/assets/d7475b1d-8720-4813-a0bc-57f55e283bbc" width="150" height="150"><br>
-        <a href="https://github.com/jonggwanpark">@jonggwanpark</a>
-      </td>
-      <td style="padding: 10px;">
-        <img src="https://github.com/user-attachments/assets/d5c4499e-4cdf-438f-81ca-f8ebdb3cf4ee" width="150" height="150"><br>
-        <a href="https://github.com/bubpen">@bubpen</a>
-      </td>
-    </tr>
-    <tr>
-      <th style="padding: 10px;">이메일</th>
-      <td style="padding: 10px;">
-        <a href="mailto:hzi284914@gmail.com">hzi284914@gmail.com</a>
-      </td>
-      <td style="padding: 10px;">
-        <a href="mailto:austinlee.devv@gmail.com">austinlee.devv@gmail.com</a>
-      </td>
-      <td style="padding: 10px;">
-        <a href="mailto:ds3hfj2@gmail.com">ds3hfj2@gmail.com</a>
-      </td>
-      <td style="padding: 10px;">
-        <a href="mailto:shghtjd711@gmail.com">shghtjd711@gmail.com</a>
-      </td>
-    </tr>
-    <tr>
-      <th style="padding: 10px;">역할</th>
-      <td style="padding: 10px;">ML, BE Follow,<br>FE Lead (AI 기반)</td>
-      <td style="padding: 10px;">LLM, BE Follow,<br>FE Follow (AI 기반)</td>
-      <td style="padding: 10px;">서버 구축 Lead,<br>CI/CD, 배포</td>
-      <td style="padding: 10px;">BE Lead,<br>서버 구축 Follow</td>
-    </tr>
-  </tbody>
-</table>
+|  항목  |  이현지 | 이수관  |  박종관 | 노호성  |
+| :----: | :-----: | :-----: | :-----: | :-----: |
+| GitHub | <img src="https://github.com/user-attachments/assets/9e4487ed-8030-4125-a52b-7d274ec7a417" height="150" width="150"><br><a href="https://github.com/hzi09">@hzi09 | <img src="https://github.com/user-attachments/assets/4e18241e-2924-447d-8745-7a05556c0fee" height="150" width="150"><br><a href="https://github.com/sugwanlee">@Orange_00</a> | <img src="https://github.com/user-attachments/assets/d7475b1d-8720-4813-a0bc-57f55e283bbc" height="150" width="150"><br><a href="https://github.com/jonggwanpark">@jonggwanpark</a> | <img src="https://github.com/user-attachments/assets/d5c4499e-4cdf-438f-81ca-f8ebdb3cf4ee" height="150" width="150"><br><a href="https://github.com/bubpen">@bubpen</a>|
+| Email | <a href="hzi284914@gmail.com">hzi284914@gmail.com</a> | <a href="austinlee.devv@gmail.com">austinlee.devv@gmail.com</a> | <a href="ds3hfj2@gmail.com">ds3hfj2@gmail.com</a> | <a href="shghtjd711@gmail.com">shghtjd711@gmail.com</a> |
+| 역할  | ML, BE Follow, <br> FE Lead(AI기반) | LLM, BE Follow, <br> FE Follow(AI기반) | 서버 구축 Lead, <br> CI/CD, 배포 | BE Lead, DB 관리 <br> 서버 구축 Follow |
 
 
 

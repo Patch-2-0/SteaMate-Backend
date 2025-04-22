@@ -34,8 +34,10 @@ load_dotenv()
 STEAM_API_KEY = os.getenv("STEAM_API_KEY")
 logger = logging.getLogger(__name__)
 
+# 로그인 API
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
+
 
 class SignupAPIView(APIView):
     """일반 사용자 회원가입 API"""
@@ -529,3 +531,26 @@ class LogoutAPIView(APIView):
         except Exception as e:
             # 기타 예외 발생 시
             return Response({"error": f"Token processing error: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class FindIDAPIView(APIView):
+    '''
+    사용자 계정 찾기 API
+    '''
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        email = request.data.get("email")
+        if not email:
+            return Response({"error":"이메일을 입력해주세요."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # email이 존재하면 ID를 조회
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({"error":"입력하신 정보와 일치하는 계정이 없습니다."},
+                            status=status.HTTP_404_NOT_FOUND)
+        response= {"username":user.username}
+        if user.steam_name:
+            response['steam_name'] = user.steam_name
+        return Response(response, status = status.HTTP_200_OK)
