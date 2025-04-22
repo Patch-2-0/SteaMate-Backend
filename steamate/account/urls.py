@@ -22,5 +22,5 @@ urlpatterns = [
     # Steam 라이브러리 불러오기
     path("steamlibrary/", views.GetSteamLibraryAPIView.as_view()),
     # ID 찾기
-    path("find-ID/", views.FindIDAPIView.as_view()),
+    path("find-id/", views.FindIDAPIView.as_view()),
 ]
