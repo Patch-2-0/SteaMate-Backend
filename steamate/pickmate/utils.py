@@ -5,17 +5,16 @@ import re
 
 def get_top_played_games(user_id, limit=10):
     """
-    사용자가 가장 많이 플레이한 게임 ID 목록을 반환
+    사용자가 선호 게임을 플레이타임을 기준으로 내림차순 정렬하여 게임 ID 목록을 반환
     게임이 없을 경우, 랜덤으로 게임을 추천
     """
     with connection.cursor() as cursor:
         cursor.execute("""
-            SELECT game_id
-            FROM account_userlibrarygame
-            WHERE user_id = %s
-            ORDER BY playtime DESC
-            LIMIT %s
-        """, [user_id, limit])
+            SELECT p.game_id
+            FROM account_userpreferredgame p JOIN account_userlibrarygame l ON p.game_id = l.game_id
+            WHERE p.user_id = %s
+            ORDER BY l.playtime DESC
+        """, [user_id])
         
         rows = cursor.fetchall()
         
@@ -34,11 +33,11 @@ def get_top_played_games(user_id, limit=10):
     # 게임이 있으면 해당 게임들 반환, 게임이 없으면 랜덤 추천
     return [row[0] for row in rows]
 
-def get_combined_similar_games(user_id, top_n=10, limit_per_game=10):
+def get_combined_similar_games(user_id, limit_per_game=10):
     """
-    사용자가 가장 많이 플레이한 TOP 10 게임을 기준으로 `pgvector`에서 유사한 게임을 검색하고 결합
+    사용자의 선호 게임을 기준으로 `pgvector`에서 유사한 게임을 검색하고 결합
     """
-    top_games = get_top_played_games(user_id, top_n)  # 사용자가 가장 많이 플레이한 10개 게임 조회
+    top_games = get_top_played_games(user_id)  # 사용자의 선호 게임 조회
     combined_recommendations = {}
 
     for game_id in top_games:
