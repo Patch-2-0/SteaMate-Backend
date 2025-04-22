@@ -77,7 +77,7 @@ def hybrid_score(content_score, collaborative_score, alpha=0.7):
 
 def get_hybrid_recommendations(user_id, top_n=10):
     """
-    사용자의 TOP 10 게임을 기반으로 pgvector 추천 + 협업 필터링을 결합한 최종 추천 리스트 반환
+    사용자의 선호 게임을 기반으로 pgvector 추천 + 협업 필터링을 결합한 최종 추천 리스트 반환
     사용자가 이미 가지고 있는 게임은 제외
     """
     # 사용자가 가지고 있는 게임 목록을 가져오기
@@ -98,7 +98,6 @@ def get_hybrid_recommendations(user_id, top_n=10):
 
         # 사용자가 이미 가지고 있는 게임은 추천 목록에서 제외
         if appid in owned_game_ids:
-            print(f"Excluding game {appid} as user already owns it.")  # 제외되는 게임 로그 추가
             continue
 
         content_score = game["similarity"]
