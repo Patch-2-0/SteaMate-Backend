@@ -204,7 +204,7 @@ class VerifyTokenSerializer(serializers.Serializer):
         try:
             user = User.objects.get(username=data['username'], email=data['email'])
         except User.DoesNotExist:
-            raise serializers.ValidationError("해당하는 유저가 없습니다. ID와 이메일을 확인해주세요.")
+            raise serializers.ValidationError({"error":"해당하는 유저가 없습니다. ID와 이메일을 확인해주세요."})
         
         try:
             record = UserFindPassword.objects.get(
@@ -213,7 +213,7 @@ class VerifyTokenSerializer(serializers.Serializer):
                 is_used = False,
                 expires_at__gt = now())
         except UserFindPassword.DoesNotExist:
-            raise serializers.ValidationError("유효하지 않은 토큰입니다. 다시 시도해주세요.")
+            raise serializers.ValidationError({"error":"유효하지 않은 토큰입니다. 다시 시도해주세요."})
         
         self.context['user'] = user
         self.context['record'] = record
@@ -236,7 +236,7 @@ class ChangePasswordSerializer(serializers.Serializer):
         try:
             user = User.objects.get(username=data['username'], email=data['email'])
         except User.DoesNotExist:
-            raise serializers.ValidationError("해당하는 유저가 없습니다. ID와 이메일을 확인해주세요.")
+            raise serializers.ValidationError({"user":"해당하는 유저가 없습니다. ID와 이메일을 확인해주세요."})
         
         self.context['user'] = user
 
