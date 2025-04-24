@@ -76,3 +76,21 @@ def delete_expired_unverified_users():
     expired_users = User.objects.filter(is_verified=False, verification_expires_at__lt=now())
     count, _ = expired_users.delete()
     return f"{count}명의 만료된 유저 삭제됨"
+
+@shared_task
+def send_token_mail(token, email):
+    subject = "[SteaMate] 비밀번호 재설정 인증번호"
+    text_content = f"""인증번호 : {token}
+    
+    3분 내에 입력해주세요."""
+    html_content = f"""
+    <html>
+      <body>
+        <p><strong>인증번호 : {token}</strong><br>
+        3분 내에 입력해주세요.</p>
+      </body>
+    </html>
+    """
+    email_message = EmailMultiAlternatives(subject, 'text_content', None, [email])
+    email_message.attach_alternative(html_content, "text/html")
+    email_message.send()

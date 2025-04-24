@@ -23,4 +23,10 @@ urlpatterns = [
     path("steamlibrary/", views.GetSteamLibraryAPIView.as_view()),
     # ID 찾기
     path("find-id/", views.FindIDAPIView.as_view()),
+    # 비밀번호 찾기
+    path("find-password/", views.FindPasswordAPIView.as_view()),
+    # 인증번호 인증
+    path("verify-token/", views.VerifyTokenAPIView.as_view()),
+    # 비밀번호 재설정
+    path("change-password/", views.ChangePasswordAPIView.as_view()),
 ]
