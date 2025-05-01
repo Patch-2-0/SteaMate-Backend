@@ -3,9 +3,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 from .models import (User, UserPreferredGame, Game, Genre, UserPreferredGenre, UserLibraryGame,
-                     UserPreferredTag, Tag, GameTag)
+                     UserPreferredTag, Tag, GameTag, UserFindPassword)
 from .serializers import (CreateUserSerializer, UserUpdateSerializer,
-                          SteamSignupSerializer, CustomTokenObtainPairSerializer)
+                          SteamSignupSerializer, CustomTokenObtainPairSerializer,
+                          VerifyTokenSerializer, ChangePasswordSerializer)
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from rest_framework import permissions
 from django.shortcuts import get_object_or_404
@@ -28,7 +29,8 @@ from django.utils.timezone import now
 import logging
 from django.db.utils import IntegrityError
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .tasks import send_verification_email, fetch_and_save_user_games
+from .tasks import send_verification_email, fetch_and_save_user_games, send_token_mail
+import random
 
 load_dotenv()
 STEAM_API_KEY = os.getenv("STEAM_API_KEY")
@@ -55,7 +57,7 @@ class SignupAPIView(APIView):
             verification_url = f"{settings.SITE_URL}/{reverse('account:verify-email', kwargs={'uidb64': uid, 'token': token}).replace(api_prefix, '')}"
             # 이메일 전송
             
-            subject="이메일 인증"
+            subject="[SteaMate] 이메일 인증"
             text_content =f"이메일 인증을 위해 다음 링크를 클릭해주세요: {verification_url}"
             html_content=f"""
             <p>이메일 인증을 위해 아래 링크를 클릭해주세요.</p>
@@ -554,3 +556,77 @@ class FindIDAPIView(APIView):
         if user.steam_name:
             response['steam_name'] = user.steam_name
         return Response(response, status = status.HTTP_200_OK)
+
+class FindPasswordAPIView(APIView):
+    '''
+    사용자 PW 찾기 API
+    '''
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        username = request.data.get("username")
+        email = request.data.get("email")
+        
+        if not username:
+            return Response({"error":"ID를 입력해주세요."}, status = status.HTTP_400_BAD_REQUEST)
+        
+        if not email:
+            return Response({"error":"E-mail을 입력해주세요."}, status = status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            user = User.objects.get(username = username, email = email)
+        except User.DoesNotExist:
+            return Response({"error":"존재하지 않는 계정입니다."}, status = status.HTTP_404_NOT_FOUND)
+        
+        # 기존 인증 변호 무효화
+        UserFindPassword.objects.filter(user=user, is_used = False).update(is_used = True)
+        
+        # 토큰/인증번호 생성
+        token = str(random.randint(100000, 999999))
+        
+        # DB 저장
+        UserFindPassword.objects.create(user=user, token = token)
+        
+        # 인증번호 전송
+        send_token_mail.delay(token, email)
+        response = {"username":user.username}
+        response["email"] = email
+        response["message"] = "이메일로 인증번호를 전송했습니다. 3분 내로 입력해주세요."
+        return Response(response, status = status.HTTP_200_OK)
+
+class VerifyTokenAPIView(APIView):
+    '''
+    인증번호 인증 API
+    '''
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        serializer = VerifyTokenSerializer(data = request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+        
+        record = serializer.context['record']
+        record.is_used = True
+        record.save()
+        
+        return Response({
+            "username": serializer.context['user'].username,
+            "email": serializer.context['user'].email,
+            "message":"인증번호가 확인되었습니다."
+        })
+
+class ChangePasswordAPIView(APIView):
+    '''
+    비밀번호 변경 API
+    '''
+    permission_classes = [AllowAny]
+    
+    def post(self, request):
+        serializer = ChangePasswordSerializer(data = request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
+        
+        serializer.save()
+        return Response({
+            "message" : "비밀번호가 성공적으로 변경되었습니다. 로그인 해주세요."
+        },status = status.HTTP_202_ACCEPTED)

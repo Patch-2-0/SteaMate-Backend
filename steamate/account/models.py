@@ -121,3 +121,24 @@ class UserPreferredTag(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.tag.name}"
+
+class UserFindPassword(models.Model):
+    """
+    비밀번호 찾기 API
+    """
+    user = models.ForeignKey(User, on_delete = models.CASCADE)
+    token = models.CharField(max_length=6)
+    is_used = models.BooleanField(default = False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.expires_at = now() + timedelta(minutes=3)
+        super().save(*args, **kwargs)
+    
+    def is_verification_expired(self):
+        """토큰 인증 시간이 만료되었는지 판단"""
+        return not self.is_used and now() > self.expires_at
+
+
