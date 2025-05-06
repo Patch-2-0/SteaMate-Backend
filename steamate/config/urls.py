@@ -22,4 +22,5 @@ urlpatterns = [
     path('api/v1/account/', include('account.urls')),
     path('api/v1/chat/', include('chatmate.urls')),
     path('api/v1/pick/', include('pickmate.urls')),
+    path('api/v1/community/', include('community.urls')),
 ]
