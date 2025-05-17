@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'account',
     'chatmate',
     'pickmate',
+    'community',
 ]
 
 MIDDLEWARE = [
